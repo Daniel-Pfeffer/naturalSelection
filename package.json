@@ -1,0 +1,19 @@
+{
+  "name": "naturalselection",
+  "version": "1.0.0",
+  "description": "natural selection in simplified form",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc --watch & nodemon src/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.0",
+    "nodemon": "^1.19.0",
+    "tslint": "^5.16.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.16.1"
+  }
+}
