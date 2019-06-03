@@ -38,7 +38,6 @@ class App {
 
         router.get('/run/:cnt', (req, res) => {
             let cnt = req.params.cnt;
-            console.log(cnt);
             if (this.sim) {
                 this.sim.run(cnt).then(() => {
                     res.json({

@@ -73,7 +73,7 @@ export class Generation {
         // One generation 10 moves
         for (let i = 0; i < 10; i++) {
             this.blobs.forEach(blob => {
-
+                //console.log(`Feck ${blob.id}`)
             });
         }
     }

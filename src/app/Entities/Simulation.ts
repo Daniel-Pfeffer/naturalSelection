@@ -18,6 +18,9 @@ class Simulation {
 
 
     public async run(maxGenerations: number) {
+        await setTimeout(function () {
+            console.log('Finished timeout')
+        }, 10000);
         // TODO: Generation 1 - maxGenerations
         this.generations.push(new Generation(this.generations[this.generations.length]));
         console.log(maxGenerations);
