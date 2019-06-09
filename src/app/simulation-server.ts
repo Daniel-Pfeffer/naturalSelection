@@ -1,4 +1,4 @@
-import express, {Express} from 'express';
+import express from 'express';
 import {Simulation} from "./Entities/Simulation";
 import fs from 'fs';
 import formidable from 'formidable'
@@ -6,6 +6,8 @@ import {Fields, Files} from "formidable";
 import {createServer, Server} from "http";
 import socketIO = require("socket.io");
 import {Socket} from "socket.io";
+import {StartConfigs} from "./helper/startConfigs";
+import * as bodyParser from "body-parser";
 
 export class SimulationServer {
     public static readonly PORT: number = 3000;
@@ -34,6 +36,8 @@ export class SimulationServer {
      */
     private createApp(): void {
         this.app = express();
+        this.app.use(bodyParser.urlencoded({extended: false}));
+        this.app.use(bodyParser.json())
     }
 
     /*
@@ -75,8 +79,10 @@ export class SimulationServer {
                 message: "server started"
             })
         });
-        router.get('/start', (req, res) => {
-            this.sim = new Simulation();
+        router.post('/start', (req, res) => {
+            let body = <StartConfigs>req.body;
+            this.sim = new Simulation(body);
+
             this.sim.socket = this.socket;
             res.json(JSON.parse(JSON.stringify(this.sim, this.replacer)));
         });
@@ -141,5 +147,6 @@ export class SimulationServer {
         if (key === "socket") return undefined;
         else return value;
     }
+
 }
 

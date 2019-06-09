@@ -24,7 +24,7 @@ class Properties {
      * how well a CustomBlob can communicate
      * not important for the selfish gene
      */
-    int: number; //
+    int: number;
 
     constructor(agt?: number, str?: number, sight?: number, int?: number) {
         this.agt = agt || 1;
