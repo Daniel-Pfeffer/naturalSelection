@@ -88,6 +88,20 @@ export class Generation {
                 blob.move(this.searchForFood(blob));
             });
         }
+        let nextGen: Array<CustomBlob> = new Array<CustomBlob>();
+        this.blobs.forEach(blob => {
+            let nextGenBlob = blob.endGeneration();
+            if (nextGenBlob != null) {
+                if (Array.isArray(nextGenBlob)) {
+                    nextGenBlob.forEach(blobo => {
+                        nextGen.push(blobo);
+                    });
+                } else {
+                    nextGen.push(nextGenBlob);
+                }
+            }
+        });
+        this.blobs = nextGen;
     }
 
     private searchForFood(blob: CustomBlob): Array<Food> {
@@ -96,6 +110,7 @@ export class Generation {
         for (let startX = -blob.properties.sight; startX <= blob.properties.sight; startX++) {
             for (let startY = -blob.properties.sight; startY <= blob.properties.sight; startY++) {
                 let pos = new Position(blob.position.x + startX, blob.position.y + startY);
+                // @ts-ignore needed except you want a spicy error
                 let food: Food | undefined = this.food.find(food => {
                     if (pos.x == food.position.x && pos.y == food.position.y) {
                         return food;
@@ -109,9 +124,5 @@ export class Generation {
             }
         }
         return foodInSight;
-    }
-
-    private timeout(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
     }
 }

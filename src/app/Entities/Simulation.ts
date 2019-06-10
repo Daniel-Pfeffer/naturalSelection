@@ -26,7 +26,9 @@ export class Simulation {
         for (let i = 0; i < maxGenerations; i++) {
             let generation = new Generation(this.generations[this.generations.length - 1]);
             this.generations.push(generation);
-            generation.run();
+            generation.run().catch(reason => {
+                console.log(reason);
+            });
         }
     }
 }

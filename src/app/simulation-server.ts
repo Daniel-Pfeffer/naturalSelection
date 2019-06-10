@@ -8,6 +8,7 @@ import socketIO = require("socket.io");
 import {Socket} from "socket.io";
 import {StartConfigs} from "./helper/startConfigs";
 import * as bodyParser from "body-parser";
+import {log} from "util";
 
 export class SimulationServer {
     public static readonly PORT: number = 3000;
@@ -25,6 +26,7 @@ export class SimulationServer {
 
     constructor() {
         this.createApp();
+        console.log("app start");
         this.config();
         this.createServer();
         this.sockets();
@@ -101,7 +103,9 @@ export class SimulationServer {
         router.get('/run/:cnt', (req, res) => {
             let cnt = req.params.cnt;
             if (this.sim) {
-                this.sim.run(cnt).then();
+                this.sim.run(cnt).then().catch(reason => {
+                    console.log(reason);
+                });
                 res.json({
                     message: "Server can now listen to queries"
                 });
