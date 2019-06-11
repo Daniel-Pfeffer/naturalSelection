@@ -1,6 +1,6 @@
 import {Position} from "./Position";
 
-class Food {
+export class Food {
     position: Position;
     value: number;
     wasEaten: boolean;
@@ -12,4 +12,3 @@ class Food {
     }
 }
 
-export {Food}

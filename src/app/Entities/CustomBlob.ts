@@ -11,7 +11,7 @@ class CustomBlob {
     foodDevoured: number;
 
     constructor(id: number, position: Position, properties?: Properties) {
-        this.id = id;
+        this.id = id; // clones have the SAME id
         this.position = position;
         this.properties = properties || new Properties();
         this.foodInSight = new Array<Food>();
@@ -109,16 +109,23 @@ class CustomBlob {
     }
 
     public endGeneration(): CustomBlob | null | Array<CustomBlob> {
-        if (this.calculateEnergieCost() > this.foodDevoured) {
-
+        if (this.calculateEnergyCost() > this.foodDevoured) {
+            if (this.calculateEnergyCost() * 2 > this.foodDevoured) {
+                return [this, /*this.generateNewBlob()*/this]
+            } else {
+                return this;
+            }
         } else {
             return null;
         }
-        return this;
     }
 
-    private calculateEnergieCost() {
+    private calculateEnergyCost() {
         return Math.pow(this.properties.str, 3) * Math.pow(this.properties.agt, 2) + this.properties.sight;
+    }
+
+    private generateNewBlob() {
+        //return new CustomBlob(this.id,);
     }
 }
 

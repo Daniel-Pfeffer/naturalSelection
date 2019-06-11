@@ -2,7 +2,7 @@
  * Properties like speed, size, sight, intelligence
  *
  */
-class Properties {
+export class Properties {
     /*
      * Agility or speed
      * can move agt block in one move
@@ -32,6 +32,18 @@ class Properties {
         this.sight = sight || 1;
         this.int = int || 1;
     }
-}
 
-export {Properties}
+    public mutate() {
+        //30% chance
+        if (Math.random() > (2 / 3)) {
+            let mutation = Math.random();
+            if (mutation < (1 / 3)) {
+                this.agt++
+            } else if (mutation > (1 / 3) && mutation < (2 / 3)) {
+                this.str++;
+            } else if (mutation > (2 / 3)) {
+                this.sight++;
+            }
+        }
+    }
+}
