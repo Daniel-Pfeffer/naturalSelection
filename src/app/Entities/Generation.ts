@@ -1,8 +1,8 @@
 import {CustomBlob} from "./CustomBlob";
 import {Food} from "./Food";
 import {Position} from "./Position";
-import {Socket} from "socket.io";
 import {FoodConfig} from "../helper/foodConfig";
+import {Properties} from "./Properties";
 
 export class Generation {
     blobs: Array<CustomBlob>;
@@ -56,7 +56,6 @@ export class Generation {
         }
         // clear trackedPos
         this.trackedPos = new Array<Position>();
-        delete this.trackedPos;
     }
 
     private generateNewPosition(): Position {
@@ -85,17 +84,32 @@ export class Generation {
         // One generation 10 moves
         for (let i = 0; i < 10; i++) {
             this.blobs.forEach(blob => {
+                console.log(`Move ${i} starts for blob ${blob.id}`);
                 blob.move(this.searchForFood(blob));
             });
         }
+        console.log("call endGen");
         let nextGen: Array<CustomBlob> = new Array<CustomBlob>();
         this.blobs.forEach(blob => {
             let nextGenBlob = blob.endGeneration();
             if (nextGenBlob != null) {
                 if (Array.isArray(nextGenBlob)) {
-                    nextGenBlob.forEach(blobo => {
-                        nextGen.push(blobo);
-                    });
+                    let parent = nextGenBlob[0];
+                    nextGen.push(parent);
+                    let positionOfNewBlob = this.generateNewPositionBasedOnPosition(parent.position);
+                    let newBlob = new CustomBlob(
+                        parent.id,
+                        positionOfNewBlob,
+                        // to avoid references to parent blob
+                        new Properties(
+                            parent.properties.agt,
+                            parent.properties.str,
+                            parent.properties.sight,
+                            parent.properties.int
+                        )
+                    );
+                    newBlob.properties.mutate();
+                    nextGen.push(newBlob);
                 } else {
                     nextGen.push(nextGenBlob);
                 }
@@ -106,7 +120,7 @@ export class Generation {
 
     private searchForFood(blob: CustomBlob): Array<Food> {
         let foodInSight = Array<Food>();
-        // iterate through all visible tiles of there is food anywhere
+        // iterate through all visible tiles if there is food anywhere
         for (let startX = -blob.properties.sight; startX <= blob.properties.sight; startX++) {
             for (let startY = -blob.properties.sight; startY <= blob.properties.sight; startY++) {
                 let pos = new Position(blob.position.x + startX, blob.position.y + startY);
@@ -118,11 +132,27 @@ export class Generation {
                 });
                 // check if the food is defined and if the food was eaten
                 if (food && !food.wasEaten) {
-                    // if food found and wasn't eaten push to foodInSigth
+                    // if food found and wasn't eaten push to foodInSight
                     foodInSight.push(food);
                 }
             }
         }
         return foodInSight;
+    }
+
+    /*
+        more disgusting
+     */
+    private generateNewPositionBasedOnPosition(position: Position) {
+        const {x: x1, y: y1} = position;
+        let isInBlobs = false;
+        let pos: Position;
+        do {
+            let x = this.randomFromInterval(x1 - 1 < 1 ? 1 : x1 - 1, x1 + 1);
+            let y = this.randomFromInterval(y1 - 1 < 1 ? 1 : y1 - 1, y1 + 1 > this.mapLength ? this.mapLength : y1 + 1);
+            pos = new Position(x, y);
+            isInBlobs = this.blobs.find(blob => blob.position.x == pos.x && blob.position.y == pos.y) == null;
+        } while (isInBlobs);
+        return pos;
     }
 }

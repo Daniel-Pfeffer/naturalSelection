@@ -11,7 +11,7 @@ import * as bodyParser from "body-parser";
 import {log} from "util";
 
 export class SimulationServer {
-    public static readonly PORT: number = 3000;
+    public static readonly PORT: number = 8888;
     // ts ignore because why not
     // @ts-ignore
     private app: express.Application;
@@ -82,9 +82,9 @@ export class SimulationServer {
             })
         });
         router.post('/start', (req, res) => {
+            console.log("received");
             let body = <StartConfigs>req.body;
             this.sim = new Simulation(body);
-
             this.sim.socket = this.socket;
             res.json(JSON.parse(JSON.stringify(this.sim, this.replacer)));
         });
@@ -103,7 +103,7 @@ export class SimulationServer {
         router.get('/run/:cnt', (req, res) => {
             let cnt = req.params.cnt;
             if (this.sim) {
-                this.sim.run(cnt).then().catch(reason => {
+                this.sim.run(cnt, this.socket).then().catch(reason => {
                     console.log(reason);
                 });
                 res.json({
@@ -149,6 +149,8 @@ export class SimulationServer {
 
     private replacer(key: string, value: any) {
         if (key === "socket") return undefined;
+        if (key === "trackedPos") return undefined;
+        if (key === "lastGeneration") return undefined;
         else return value;
     }
 

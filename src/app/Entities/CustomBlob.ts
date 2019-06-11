@@ -21,8 +21,7 @@ class CustomBlob {
     public move(foodInSight: Array<Food>) {
         // Save food
         this.foodInSight = foodInSight;
-        console.log(this.foodInSight);
-        if (this.foodInSight) {
+        if (this.foodInSight && this.foodInSight.length > 0) {
             let nearestFood: Food = this.findNearestFood();
             for (let i = 0; i < this.properties.agt; i++) {
                 this.moveToFood(nearestFood);
@@ -102,30 +101,35 @@ class CustomBlob {
                 this.position.x--;
             } else {
                 // is on top -> devour
+                console.log(`food was eaten by blob${this.id}`);
                 food.wasEaten = true;
-                this.foodDevoured = food.value;
+                this.foodDevoured += food.value;
             }
         }
     }
 
     public endGeneration(): CustomBlob | null | Array<CustomBlob> {
-        if (this.calculateEnergyCost() > this.foodDevoured) {
-            if (this.calculateEnergyCost() * 2 > this.foodDevoured) {
-                return [this, /*this.generateNewBlob()*/this]
+        console.log(`blobID: ${this.id}`);
+        console.log(`devoured: ${this.foodDevoured}`);
+        console.log(`energy cost: ${this.calculateEnergyCost()}`);
+        if (this.calculateEnergyCost() <= this.foodDevoured) {
+            if (this.calculateEnergyCost() * 2 <= this.foodDevoured) {
+                console.log(`mate`);
+                this.foodDevoured = 0;
+                return [this]; // Disgusting
             } else {
+                console.log(`live`);
+                this.foodDevoured = 0;
                 return this;
             }
         } else {
+            console.log(`die`);
             return null;
         }
     }
 
     private calculateEnergyCost() {
         return Math.pow(this.properties.str, 3) * Math.pow(this.properties.agt, 2) + this.properties.sight;
-    }
-
-    private generateNewBlob() {
-        //return new CustomBlob(this.id,);
     }
 }
 

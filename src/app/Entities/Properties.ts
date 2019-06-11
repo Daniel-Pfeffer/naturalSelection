@@ -35,14 +35,52 @@ export class Properties {
 
     public mutate() {
         //30% chance
-        if (Math.random() > (2 / 3)) {
+        if (Math.random() >= (2 / 3)) {
+            console.log(`do the mutate`);
             let mutation = Math.random();
-            if (mutation < (1 / 3)) {
-                this.agt++
-            } else if (mutation > (1 / 3) && mutation < (2 / 3)) {
-                this.str++;
+            let up = Math.random() > (1 / 3);
+            console.log(up);
+            if (mutation <= (1 / 3)) {
+                console.log('Mutate agt');
+                if (up) {
+                    console.log('Mutate agt++');
+                    this.agt++
+                } else if (this.agt > 1) {
+                    console.log('Mutate agt--');
+                    this.agt--;
+                } else {
+                    console.log('would mutate agt--');
+                }
+            } else if (mutation > (1 / 3) && mutation <= (2 / 3)) {
+                console.log('Mutate str');
+                if (up) {
+                    console.log('Mutate str++');
+                    this.str++
+                } else if (this.str > 1) {
+                    console.log('Mutate str--');
+                    this.str--;
+                } else {
+                    console.log('would mutate str--');
+                }
             } else if (mutation > (2 / 3)) {
-                this.sight++;
+                console.log('mutate sight');
+                if (up) {
+                    this.sight++;
+                    console.log('mutate sight++');
+                } else if (this.sight > 1) {
+                    this.sight--;
+                } else {
+                    console.log('would mutate sight--');
+                }
+            }
+            if (up) {
+                console.log('mutate int++');
+                this.int++;
+            } else if (this.int > 1) {
+                console.log('mutate int--');
+                this.int--;
+            } else {
+                console.log('would mutate int--');
             }
         }
     }

@@ -21,7 +21,7 @@ export class Simulation {
     }
 
 
-    public async run(maxGenerations: number) {
+    public async run(maxGenerations: number, socket: Socket | undefined) {
         // run all generations
         for (let i = 0; i < maxGenerations; i++) {
             let generation = new Generation(this.generations[this.generations.length - 1]);
@@ -29,6 +29,7 @@ export class Simulation {
             generation.run().catch(reason => {
                 console.log(reason);
             });
+            socket!.emit('gen', generation);
         }
     }
 }
