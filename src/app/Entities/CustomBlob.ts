@@ -1,14 +1,14 @@
-// @ts-ignore
 import {Properties} from "./Properties";
 import {Position} from "./Position";
 import {Food} from "./Food";
 
-class CustomBlob {
+export class CustomBlob {
     id: number;
     position: Position;
     properties: Properties;
     foodInSight: Array<Food>;
     foodDevoured: number;
+    moveSet: string;
 
     constructor(id: number, position: Position, properties?: Properties) {
         this.id = id; // clones have the SAME id
@@ -16,9 +16,10 @@ class CustomBlob {
         this.properties = properties || new Properties();
         this.foodInSight = new Array<Food>();
         this.foodDevoured = 0;
+        this.moveSet = '';
     }
 
-    public move(foodInSight: Array<Food>) {
+    public move(foodInSight: Array<Food>, mapLength: number) {
         // Save food
         this.foodInSight = foodInSight;
         if (this.foodInSight && this.foodInSight.length > 0) {
@@ -28,41 +29,123 @@ class CustomBlob {
             }
         } else {
             for (let i = 0; i < this.properties.agt; i++) {
-                this.searchFood();
+                this.searchFood(mapLength);
             }
         }
     }
 
-    private searchFood() {
-        /* TODO: move to direction where border is far away i.e:
-            Blob is at 1,1
-            will not move to any 0 value
-            will move to x => 1 any y => 1
-            Blob is at 9,9
-            will not move to x > 9 and y > 9
-            will move to x <= 9 and y <= 9
-        * */
+    private searchFood(mapLength: number) {
+        console.log("Enter search food");
+        let posToMove = this.findPositionToMove(mapLength);
+        this.moveToPosition(posToMove);
+    }
+
+    private findPositionToMove(mapLength: number): Position {
+        const positionsToMove = [
+            {//D
+                x: 0,
+                y: 0
+            },
+            {//A
+                x: 0,
+                y: mapLength
+            },
+            {//B
+                x: mapLength,
+                y: mapLength
+            },
+            {//C
+                x: mapLength,
+                y: 0
+            },
+            {//g
+                x: mapLength / 2,
+                y: 0
+            },
+            {//h
+                x: 0,
+                y: mapLength / 2
+            },
+            {//e
+                x: mapLength / 2,
+                y: mapLength
+            },
+            {//f
+                x: mapLength,
+                y: mapLength / 2
+            }
+        ];
+        return positionsToMove.sort((a, b) => {
+            if (this.distanceToPoint(a) < this.distanceToPoint(b)) {
+                return 1
+            }
+            if (this.distanceToPoint(a) > this.distanceToPoint(b)) {
+                return -1
+            }
+            return 0
+        })[0];
     }
 
     private findNearestFood(): Food {
         return this.foodInSight.sort((a, b) => {
-            if (this.distanceToPoint(a) < this.distanceToPoint(b)) {
+            if (this.distanceToPoint(a.position) < this.distanceToPoint(b.position)) {
                 return -1;
             }
-            if (this.distanceToPoint(a) > this.distanceToPoint(b)) {
+            if (this.distanceToPoint(a.position) > this.distanceToPoint(b.position)) {
                 return 1;
             }
             return 0;
         })[0];
     }
 
-    public distanceToPoint(food: Food): number {
+    private distanceToPoint(position: Position): number {
         return Math.sqrt(
             Math.pow(
-                (food.position.x - this.position.x), 2) +
+                (position.x - this.position.x), 2) +
             Math.pow(
-                (food.position.y - this.position.y), 2)
+                (position.y - this.position.y), 2)
         )
+    }
+
+    private moveToPosition(position: Position) {
+        if (position.y > position.y) {
+            if (position.x > position.x) {
+                // add 1,1
+                this.position.x++;
+                this.position.y++;
+            } else if (position.x < position.x) {
+                // add -1,1
+                this.position.x--;
+                this.position.y++;
+            } else {
+                // add 0,1
+                this.position.y++;
+            }
+        } else if (position.y < position.y) {
+            if (position.x > position.x) {
+                // add 1,-1
+                this.position.x++;
+                this.position.y--;
+            } else if (position.x < position.x) {
+                // add -1,-1
+                this.position.x--;
+                this.position.y--;
+            } else {
+                // add 0,-1
+                this.position.y--;
+            }
+        } else {
+            if (position.x > position.x) {
+                // add 1,0
+                this.position.x++;
+            } else if (position.x < position.x) {
+                // add -1,0
+                this.position.x--;
+            } else {
+                // is on top
+                // heck
+            }
+        }
     }
 
     private moveToFood(food: Food) {
@@ -129,8 +212,6 @@ class CustomBlob {
     }
 
     private calculateEnergyCost() {
-        return Math.pow(this.properties.str, 3) * Math.pow(this.properties.agt, 2) + this.properties.sight;
+        return Math.pow(this.properties.str, 1) * Math.pow(this.properties.agt, 1 / 2) + this.properties.sight / 2;
     }
 }
-
-export {CustomBlob};

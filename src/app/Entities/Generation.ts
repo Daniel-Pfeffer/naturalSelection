@@ -66,6 +66,7 @@ export class Generation {
             let x = this.randomFromInterval(1, this.mapLength);
             let y = this.randomFromInterval(1, this.mapLength);
             pos = new Position(x, y);
+            // check if a position is already used
             this.trackedPos.forEach(posit => {
                 if (posit.x === pos.x && posit.y === pos.y) {
                     contains = true;
@@ -85,7 +86,7 @@ export class Generation {
         for (let i = 0; i < 10; i++) {
             this.blobs.forEach(blob => {
                 console.log(`Move ${i} starts for blob ${blob.id}`);
-                blob.move(this.searchForFood(blob));
+                blob.move(this.searchForFood(blob), this.mapLength);
             });
         }
         console.log("call endGen");

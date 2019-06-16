@@ -8,11 +8,10 @@ import socketIO = require("socket.io");
 import {Socket} from "socket.io";
 import {StartConfigs} from "./helper/startConfigs";
 import * as bodyParser from "body-parser";
-import {log} from "util";
 
 export class SimulationServer {
     public static readonly PORT: number = 8888;
-    // ts ignore because why not
+    // ts-ignore otherwise ide warning cause they won't be defined in the 'constructor'
     // @ts-ignore
     private app: express.Application;
     // @ts-ignore
@@ -81,13 +80,7 @@ export class SimulationServer {
                 message: "server started"
             })
         });
-        router.post('/start', (req, res) => {
-            console.log("received");
-            let body = <StartConfigs>req.body;
-            this.sim = new Simulation(body);
-            this.sim.socket = this.socket;
-            res.json(JSON.parse(JSON.stringify(this.sim, this.replacer)));
-        });
+
         router.get('/save', (req, res) => {
             fs.writeFile('save.json', JSON.stringify(this.sim), (err => {
                 if (err) {
@@ -100,11 +93,12 @@ export class SimulationServer {
             }));
         });
 
-        router.get('/run/:cnt', (req, res) => {
+        router.get('/run/:cnt', async (req, res) => {
             let cnt = req.params.cnt;
             if (this.sim) {
-                this.sim.run(cnt, this.socket).then().catch(reason => {
-                    console.log(reason);
+
+                this.sim.run(cnt, this.socket).then(() => {
+                    this.socket!.emit('fin', "Generations are finished")
                 });
                 res.json({
                     message: "Server can now listen to queries"
@@ -113,6 +107,52 @@ export class SimulationServer {
                 res.json({
                     message: 'No Simulation started/loaded'
                 })
+            }
+        });
+
+        router.get('/getGeneration/:genNo', (req, res) => {
+            let genNo = req.params.genNo;
+            if (this.sim) {
+                if (this.sim.generations.length > 0) {
+                    if (this.sim.generations.length <= genNo || genNo < 0) {
+                        res.json({
+                            message: 'No generation with generation number ' + genNo + ' ran'
+                        })
+                    } else {
+                        res.json(JSON.parse(JSON.stringify(this.sim.generations[genNo], this.replacer)));
+                    }
+                } else {
+                    res.json({
+                        message: 'No generation ran'
+                    });
+                }
+            } else {
+                res.json({
+                    message: 'No simulation started/loaded'
+                });
+            }
+        });
+
+        router.get('/getMovePattern/:genNo', (req, res) => {
+            let genNo = req.params.genNo;
+            if (this.sim) {
+                if (this.sim.generations.length > 0) {
+                    if (this.sim.generations.length <= genNo || genNo < 0) {
+                        res.json({
+                            message: 'No generation with generation number ' + genNo + ' ran'
+                        })
+                    } else {
+                        res.json(JSON.parse(JSON.stringify(this.sim.generations[genNo], this.replacer)));
+                    }
+                } else {
+                    res.json({
+                        message: 'No generation ran'
+                    });
+                }
+            } else {
+                res.json({
+                    message: 'No simulation started/loaded'
+                });
             }
         });
         /*
@@ -129,28 +169,40 @@ export class SimulationServer {
                         })
                     } else {
                         res.json({
-                            message: "Simulation loading failed. Please consider Toasterbath"
+                            message: "Simulation loading failed. Please consider toasterbath"
                         })
                     }
                 })
             })
         });
+
+        router.post('/start', (req, res) => {
+            console.log("received");
+            let body = <StartConfigs>req.body;
+            this.sim = new Simulation(body);
+            this.sim.socket = this.socket;
+            res.json(JSON.parse(JSON.stringify(this.sim, this.replacer)));
+        });
+        /*
+         * WS
+         */
         // set socketServer to listen
         this.io.on("connect", (socket: Socket) => {
             console.log('Connected client on port %s.', this.port);
             this.socket = socket;
         });
 
-
         // set the app to use the routes on default path
         this.app.use('/', router);
-
     }
 
     private replacer(key: string, value: any) {
         if (key === "socket") return undefined;
         if (key === "trackedPos") return undefined;
         if (key === "lastGeneration") return undefined;
+        if (key === "food") return undefined;
+        if (key === "foodInSight") return undefined;
+        if (key === "foodDevoured") return undefined;
         else return value;
     }
 

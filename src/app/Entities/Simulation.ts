@@ -3,13 +3,12 @@ import {Socket} from "socket.io";
 import {StartConfigs} from "../helper/startConfigs";
 import {FoodConfig} from "../helper/foodConfig";
 
-
 export class Simulation {
     mapLength: number;
     blobCount: number;
     foodConfigs: FoodConfig;
     socket: Socket | undefined;
-    private generations: Array<Generation>;
+    generations: Array<Generation>;
 
     constructor(configs: StartConfigs) {
         this.generations = new Array<Generation>();
@@ -29,7 +28,15 @@ export class Simulation {
             generation.run().catch(reason => {
                 console.log(reason);
             });
-            socket!.emit('gen', generation);
+            socket!.emit('gen', JSON.parse(JSON.stringify(generation, this.replacer)));
         }
+    }
+
+    private replacer(key: string, value: any) {
+        if (key === "socket") return undefined;
+        if (key === "trackedPos") return undefined;
+        if (key === "lastGeneration") return undefined;
+        if (key === "food") return undefined;
+        else return value;
     }
 }
