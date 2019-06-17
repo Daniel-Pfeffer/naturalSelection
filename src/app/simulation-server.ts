@@ -8,6 +8,7 @@ import socketIO = require("socket.io");
 import {Socket} from "socket.io";
 import {StartConfigs} from "./helper/startConfigs";
 import * as bodyParser from "body-parser";
+import cors from 'cors';
 
 export class SimulationServer {
     public static readonly PORT: number = 8888;
@@ -20,6 +21,8 @@ export class SimulationServer {
     private io: socketIO.Server;
     // @ts-ignore
     private port: string | number;
+    // @ts-ignore
+    private option: cors.CorsOptions;
     private socket: Socket | undefined;
     sim?: Simulation;
 
@@ -29,6 +32,7 @@ export class SimulationServer {
         this.config();
         this.createServer();
         this.sockets();
+        this.corsOption();
         this.mountRoutes();
     }
 
@@ -62,6 +66,16 @@ export class SimulationServer {
         this.io = socketIO(this.server);
     }
 
+    private corsOption() {
+        this.option = {
+            allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "X-Access-Token"],
+            credentials: true,
+            methods: "GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE",
+            origin: '*',
+            preflightContinue: false
+        };
+    }
+
     /*
      * mount all routes
      */
@@ -72,6 +86,7 @@ export class SimulationServer {
         });
         // define normal http routes
         const router = express.Router();
+        router.use(cors(this.option));
         /*
          * GET
          */
@@ -98,7 +113,9 @@ export class SimulationServer {
             if (this.sim) {
 
                 this.sim.run(cnt, this.socket).then(() => {
-                    this.socket!.emit('fin', "Generations are finished")
+                    if (this.socket) {
+                        this.socket.emit('fin', "Generations are finished")
+                    }
                 });
                 res.json({
                     message: "Server can now listen to queries"
@@ -112,29 +129,7 @@ export class SimulationServer {
 
         router.get('/getGeneration/:genNo', (req, res) => {
             let genNo = req.params.genNo;
-            if (this.sim) {
-                if (this.sim.generations.length > 0) {
-                    if (this.sim.generations.length <= genNo || genNo < 0) {
-                        res.json({
-                            message: 'No generation with generation number ' + genNo + ' ran'
-                        })
-                    } else {
-                        res.json(JSON.parse(JSON.stringify(this.sim.generations[genNo], this.replacer)));
-                    }
-                } else {
-                    res.json({
-                        message: 'No generation ran'
-                    });
-                }
-            } else {
-                res.json({
-                    message: 'No simulation started/loaded'
-                });
-            }
-        });
-
-        router.get('/getMovePattern/:genNo', (req, res) => {
-            let genNo = req.params.genNo;
+            console.log(`getGeneration ${genNo}`);
             if (this.sim) {
                 if (this.sim.generations.length > 0) {
                     if (this.sim.generations.length <= genNo || genNo < 0) {
@@ -200,7 +195,7 @@ export class SimulationServer {
         if (key === "socket") return undefined;
         if (key === "trackedPos") return undefined;
         if (key === "lastGeneration") return undefined;
-        if (key === "food") return undefined;
+        //if (key === "food") return undefined;
         if (key === "foodInSight") return undefined;
         if (key === "foodDevoured") return undefined;
         else return value;

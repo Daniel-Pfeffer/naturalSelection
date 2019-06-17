@@ -32,14 +32,14 @@ export class Generation {
 
             this.blobs = new Array<CustomBlob>();
             this.blobCount = this.blobCount!;
-            for (let i = 0; i <= this.blobCount; i++) {
+            for (let i = 0; i < this.blobCount; i++) {
                 let pos = this.generateNewPosition();
                 this.blobs.push(new CustomBlob(this.blobs.length, pos))
             }
         }
         this.food = new Array<Food>();
         // Generate Food
-        for (let i = 0; i <= this.foodConfig.foodAmount; i++) {
+        for (let i = 0; i < this.foodConfig.foodAmount; i++) {
             let pos = this.generateNewPosition();
             this.food.push(new Food(pos));
         }

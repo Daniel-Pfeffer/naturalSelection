@@ -28,7 +28,9 @@ export class Simulation {
             generation.run().catch(reason => {
                 console.log(reason);
             });
-            socket!.emit('gen', JSON.parse(JSON.stringify(generation, this.replacer)));
+            if (socket) {
+                socket.emit('gen', JSON.parse(JSON.stringify(generation, this.replacer)));
+            }
         }
     }
 
@@ -36,7 +38,7 @@ export class Simulation {
         if (key === "socket") return undefined;
         if (key === "trackedPos") return undefined;
         if (key === "lastGeneration") return undefined;
-        if (key === "food") return undefined;
+        //if (key === "food") return undefined;
         else return value;
     }
 }

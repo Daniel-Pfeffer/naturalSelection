@@ -8,7 +8,7 @@ export class CustomBlob {
     properties: Properties;
     foodInSight: Array<Food>;
     foodDevoured: number;
-    moveSet: string;
+    moveSet: string = "";
 
     constructor(id: number, position: Position, properties?: Properties) {
         this.id = id; // clones have the SAME id
@@ -16,7 +16,6 @@ export class CustomBlob {
         this.properties = properties || new Properties();
         this.foodInSight = new Array<Food>();
         this.foodDevoured = 0;
-        this.moveSet = '';
     }
 
     public move(foodInSight: Array<Food>, mapLength: number) {
@@ -108,39 +107,55 @@ export class CustomBlob {
     }
 
     private moveToPosition(position: Position) {
-        if (position.y > position.y) {
-            if (position.x > position.x) {
+        if (position.y > this.position.y) {
+            if (position.x > this.position.x) {
                 // add 1,1
                 this.position.x++;
                 this.position.y++;
-            } else if (position.x < position.x) {
+                this.moveSet += 'RT ';
+                console.log('RT ');
+            } else if (position.x < this.position.x) {
                 // add -1,1
                 this.position.x--;
                 this.position.y++;
+                this.moveSet += 'LT ';
+                console.log('LT ');
             } else {
                 // add 0,1
                 this.position.y++;
+                this.moveSet += 'T ';
+                console.log('T ');
             }
-        } else if (position.y < position.y) {
-            if (position.x > position.x) {
+        } else if (position.y < this.position.y) {
+            if (position.x > this.position.x) {
                 // add 1,-1
                 this.position.x++;
                 this.position.y--;
-            } else if (position.x < position.x) {
+                this.moveSet += 'RB ';
+                console.log('RB ');
+            } else if (position.x < this.position.x) {
                 // add -1,-1
                 this.position.x--;
                 this.position.y--;
+                this.moveSet += 'LB ';
+                console.log('LB ');
             } else {
                 // add 0,-1
                 this.position.y--;
+                this.moveSet += 'B ';
+                console.log('B ');
             }
         } else {
-            if (position.x > position.x) {
+            if (position.x > this.position.x) {
                 // add 1,0
                 this.position.x++;
-            } else if (position.x < position.x) {
+                this.moveSet += 'R ';
+                console.log('R ');
+            } else if (position.x < this.position.x) {
                 // add -1,0
                 this.position.x--;
+                this.moveSet += 'L ';
+                console.log('L ');
             } else {
                 // is on top
                 // heck
@@ -149,39 +164,55 @@ export class CustomBlob {
     }
 
     private moveToFood(food: Food) {
-        if (food.position.y > food.position.y) {
-            if (food.position.x > food.position.x) {
+        if (food.position.y > this.position.y) {
+            if (food.position.x > this.position.x) {
                 // add 1,1
                 this.position.x++;
                 this.position.y++;
-            } else if (food.position.x < food.position.x) {
+                this.moveSet += 'RT ';
+                console.log('RT ');
+            } else if (food.position.x < this.position.x) {
                 // add -1,1
                 this.position.x--;
                 this.position.y++;
+                this.moveSet += 'LT ';
+                console.log('LT ');
             } else {
                 // add 0,1
                 this.position.y++;
+                this.moveSet += 'T ';
+                console.log('T ');
             }
-        } else if (food.position.y < food.position.y) {
-            if (food.position.x > food.position.x) {
+        } else if (food.position.y < this.position.y) {
+            if (food.position.x > this.position.x) {
                 // add 1,-1
                 this.position.x++;
                 this.position.y--;
-            } else if (food.position.x < food.position.x) {
+                this.moveSet += 'RB ';
+                console.log('RB ');
+            } else if (food.position.x < this.position.x) {
                 // add -1,-1
                 this.position.x--;
                 this.position.y--;
+                this.moveSet += 'LB ';
+                console.log('LB ');
             } else {
                 // add 0,-1
                 this.position.y--;
+                this.moveSet += 'B ';
+                console.log('B ');
             }
         } else {
-            if (food.position.x > food.position.x) {
+            if (food.position.x > this.position.x) {
                 // add 1,0
                 this.position.x++;
-            } else if (food.position.x < food.position.x) {
+                this.moveSet += 'R ';
+                console.log('R ');
+            } else if (food.position.x < this.position.x) {
                 // add -1,0
                 this.position.x--;
+                this.moveSet += 'L ';
+                console.log('L ');
             } else {
                 // is on top -> devour
                 console.log(`food was eaten by blob${this.id}`);
@@ -195,6 +226,8 @@ export class CustomBlob {
         console.log(`blobID: ${this.id}`);
         console.log(`devoured: ${this.foodDevoured}`);
         console.log(`energy cost: ${this.calculateEnergyCost()}`);
+        this.moveSet.slice(0, this.moveSet.length - 1);
+        console.log(`${this.moveSet}`);
         if (this.calculateEnergyCost() <= this.foodDevoured) {
             if (this.calculateEnergyCost() * 2 <= this.foodDevoured) {
                 console.log(`mate`);
